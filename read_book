@@ -1,0 +1,2 @@
+#! /usr/bin/bash
+cd ~/code/Nextcloud/Documents/yuh/read && python3 main.py

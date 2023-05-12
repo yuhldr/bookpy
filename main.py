@@ -9,15 +9,16 @@ import json
 import edge_tts
 import asyncio
 import subprocess
-import json
 
 # 阅读app ip和端口
 host_book = "http://192.168.31.5:1122"
+# host_book = "http://10.6.0.2:1122"
 
 # 音频文件URL
 voice = "zh-CN-XiaoxiaoNeural"
 rate = "+12%"
-cache_path = 'mp3'
+path_cache = os.getenv("HOME") + "/.cache/tts"
+path_config = os.getenv("HOME") + "/.config/tts"
 
 
 def save_jd(book_data, p):
@@ -25,7 +26,7 @@ def save_jd(book_data, p):
         "book": book_data,
         "p": p
     },
-              open("jd.json", 'w'),
+              open(path_config + "/jd.json", 'w'),
               indent=4,
               ensure_ascii=False)
 
@@ -54,8 +55,9 @@ def get_book_txt(book_data, index=0):
 
 def getChapterList(book_data):
     url = "%s/getChapterList?url=%s" % (host_book, data2url(book_data))
-    data = requests.get(url).json()["data"]
-    return data
+    rp = requests.get(url)
+    print(rp.status_code)
+    return rp.json()["data"]
 
 
 # 保存读取进度
@@ -126,17 +128,23 @@ def test_play():
 
 
 def init(book_n, p):
-    # 如果文件夹存在，则删除
-    if os.path.exists(cache_path):
-        shutil.rmtree(cache_path)
+    if not os.path.exists(path_config):
+        os.mkdir(path_config)
 
-    # 创建文件夹
-    os.mkdir(cache_path)
+    if os.path.exists(path_cache):
+        shutil.rmtree(path_cache)
+    os.mkdir(path_cache)
 
     try:
-        j_data = json.load(open("jd.json", "r"))
+        j_data = json.load(open(path_config + "/jd.json", "r"))
         book_data = j_data["book"]
-        p = j_data["p"]
+        book_data0 = get_book_shelf(book_n)
+        if book_data0["durChapterIndex"] == book_data["durChapterIndex"] \
+                and book_data0["name"] == book_data["name"]:
+            p = j_data["p"]
+        else:
+            p = 0
+            book_data = book_data0
         if p > 0:
             p -= 1
     except Exception as e:
@@ -161,7 +169,7 @@ def main(
         ci = dci + i
         title = cs[ci]["title"]
 
-        path = "%s/%d" % (cache_path, ci)
+        path = "%s/%d" % (path_cache, ci)
         book_txt = get_book_txt(book_data, ci)
 
         ts = split_text(book_txt)

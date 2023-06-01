@@ -2,27 +2,38 @@
 
 > 写程序很多时候是重复工作，听音乐没细胞，那就听听书洗洗脑子吧
 
+## 原因
+
+> [阅读app](https://github.com/gedoor/legado) 听书很方便，但是我喜欢带着电脑上的头戴式耳机，所以想在电脑上听书
+
+- 需要结合 [阅读app](https://github.com/gedoor/legado)
+- 可以免费用 `微软晓晓听书`
+- 阅读进度与手机同步
+
+
 ## 使用方法
 
-如果你在使用 python 下面的很容易
+如果你在使用 `python3` 下面的很容易
 
 ### 环境配置
 
-> 只需一次
+> 只需配置一次
 
-1. 安装python
+1. 安装 `python3`
 
     尽量用linux，windows系统可以用 `WSL`，什么意思，自己百度吧
 
 2. 终端打开到这个目录，安装依赖
 
     ```python
-    pip install -r requirements.txt
+    pip3 install -r requirements.txt
     ```
 
 3. 终端安装 `mpv`
 
-    我用的 linux，比如 `ubuntu`，直接输入 `sudo apt install mpv`即可，其他的自己想办法
+    我用的 linux，比如 `ubuntu`，直接输入 `sudo apt install mpv` 即可，其他的自己想办法
+    
+    > windows系统（WSL不需要）可能需要在 [tools/tts.py](tools/tts.py) 修改 `play_thread` 函数的参数 `line_app="mpv"`，`mpv` 改成你的 `mpv命令所在路径`
 
 4. 测试是否修改成功
 

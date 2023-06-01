@@ -11,7 +11,7 @@ def play_thread(file_path, line_app="mpv"):
     """子线程阅读
 
     Args:
-        file_path (_type_): _description_
+        file_path (_type_): 音频文件路径
         line_app (str, optional): 这里用的是 `mpv` 你也可以用其他的命令行工具. Defaults to "mpv".
     """
     with subprocess.Popen([
@@ -29,8 +29,8 @@ async def tts_main(text,
     """异步文本转音频，并保存本地
 
     Args:
-        text (_type_): _description_
-        file (_type_): _description_
+        text (_type_): 文本
+        file (_type_): 保存的音频文件
         voice (str, optional): 朗读人. Defaults to "zh-CN-XiaoxiaoNeural".
         rate (str, optional): 朗读速率. Defaults to "+15%".
     """
@@ -38,14 +38,18 @@ async def tts_main(text,
     await communicate.save(file)
 
 
-def download_thread(text, file):
+def download_thread(text, file,
+                    voice="zh-CN-XiaoxiaoNeural",
+                    rate="+15%"):
     """子线程下载音频
 
     Args:
         text (_type_): 文本
-        file (_type_): 保存音频文件
+        file (_type_): 保存的音频文件
+        voice (str, optional): 朗读人. Defaults to "zh-CN-XiaoxiaoNeural".
+        rate (str, optional): 朗读速率. Defaults to "+15%".
     """
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    loop.run_until_complete(tts_main(text, file))
+    loop.run_until_complete(tts_main(text, file, voice, rate))
     loop.close()

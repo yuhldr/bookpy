@@ -5,8 +5,8 @@ import os
 import shutil
 import threading
 
-from servers.legado import (get_book_shelf, get_book_txt, get_chapter_list,
-                            save_book_progress)
+from servers.legado import (CHAP_INDEX, CHAP_POS, CHAP_TITLE, get_book_shelf,
+                            get_book_txt, get_chapter_list, save_book_progress)
 from tools import split_text
 from tools.tts import download_thread, play_thread
 
@@ -35,7 +35,7 @@ def init(book_n):
     """初始化：创建文件夹、获取书籍信息
 
     Args:
-        book_n (_type_): 书架的第几本书
+        book_n (int): 书架的第几本书
 
     Returns:
         dict: 请求书架获得的书籍信息
@@ -59,13 +59,13 @@ def read_chap(book_data, dcp, path):
     """读某一章节
 
     Args:
-        book_data (_type_): 书籍信息
-        dcp (_type_): 上次读到哪里了
-        path (_type_): 音频缓存保存位置
+        book_data (dict): 书籍信息
+        dcp (int): 上次读到哪里了
+        path (str): 音频缓存保存位置
     """
     # 先把这个章节的目录读一下，方便预下载下一段
     file_last = f"{path}.mp3"
-    download_thread(book_data['durChapterTitle'], file_last)
+    download_thread(book_data[CHAP_TITLE], file_last)
 
     # 把这一章节分割一下，防止有些段落太短，浪费
     # ts，分割以后的文本数组
@@ -74,7 +74,6 @@ def read_chap(book_data, dcp, path):
     book_txt = get_book_txt(book_data)
     txt_list, p2s, n_last = split_text(book_txt, dcp)
 
-    print(f"========= {book_data['durChapterTitle']} ======")
     print(f"上次：{n_last}/{len(txt_list)}\n\n")
     print(f"{dcp}/{p2s[-1]}  ts={len(txt_list)} ps={len(p2s)}")
 
@@ -85,7 +84,7 @@ def read_chap(book_data, dcp, path):
         print(f"{j}/{len(txt_list) - n_last} {n_chap - 1}/{len(txt_list)}")
 
         # 保存阅读进度
-        book_data["durChapterPos"] = p2s[n_chap]
+        book_data[CHAP_POS] = p2s[n_chap]
         save_jd(book_data)
 
         # 多线程读之前下载好的，防止卡顿、等待
@@ -117,20 +116,21 @@ def main(book_n=0, chap=100):
     # 获取当前第一本书的信息
     book_data = init(book_n)
     # 获取书的目录
-    chapter_list = get_chapter_list(book_data)
+    chaps = get_chapter_list(book_data)
 
     # 默认听100章节，自动停止
     for i in range(chap):
-        dur_chap_i = book_data["durChapterIndex"] + 1
-        book_data["durChapterIndex"] = dur_chap_i
-        book_data["durChapterTitle"] = chapter_list[dur_chap_i]["title"]
 
         dcp = 0
         if i == 0:
-            dcp = book_data["durChapterPos"]
-            print(dcp)
+            dcp = book_data[CHAP_POS]
+        else:
+            book_data[CHAP_INDEX] += 1
 
-        path = f"{path_cache}{dur_chap_i}"
+        book_data[CHAP_TITLE] = chaps[book_data[CHAP_INDEX]]["title"]
+        print(f"========= {book_data[CHAP_TITLE]} ======")
+
+        path = f"{path_cache}{book_data[CHAP_INDEX]}"
 
         read_chap(book_data, dcp, path)
 

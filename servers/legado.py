@@ -11,12 +11,19 @@ import requests
 # 阅读app ip和端口
 HOST_BOOK = "http://192.168.31.5:1122"
 
+# 当前阅读位置：第几个字符
+CHAP_POS = "durChapterPos"
+# 当前第几章节
+CHAP_INDEX = "durChapterIndex"
+# 当前章节题目
+CHAP_TITLE = "durChapterTitle"
+
 
 def get_book_shelf(book_n=0):
     """获取书架
 
     Args:
-        n (int, optional): _description_. Defaults to 0.
+        n (int, optional): 第几本书. Defaults to 0.
 
     Returns:
         dict: 书籍信息
@@ -31,13 +38,13 @@ def get_book_shelf(book_n=0):
 
 
 def data2url(book_data):
-    """_summary_
+    """这个url需要编码才行
 
     Args:
-        book_data (_type_): _description_
+        book_data (dict): 书籍信息
 
     Returns:
-        _type_: _description_
+        str: 编码以后的图书信息url
     """
     return urllib.parse.quote(book_data["bookUrl"])
 
@@ -46,14 +53,15 @@ def get_book_txt(book_data):
     """获取书某一章节的文本
 
     Args:
-        book_data (_type_): _description_
+        book_data (dict): 书籍信息
         index (int, optional): _description_. Defaults to 0.
 
     Returns:
-        _type_: _description_
+        str: 某一章节的文字
     """
     url = f"{HOST_BOOK}/getBookContent"
-    params = f"url={data2url(book_data)}&index={book_data['durChapterIndex']}"
+    # 因为data2url需要编码的问题，不能写成字典
+    params = f"url={data2url(book_data)}&index={book_data[CHAP_INDEX]}"
 
     response = requests.get(f"{url}?{params}", timeout=10)
 
@@ -64,10 +72,10 @@ def get_chapter_list(book_data):
     """获取书章节目录
 
     Args:
-        book_data (_type_): _description_
+        book_data (dict): 书籍信息
 
     Returns:
-        _type_: _description_
+        list: 目录json，包含title,url等等
     """
     url = f"{HOST_BOOK}/getChapterList?url={data2url(book_data)}"
     response = requests.get(url, timeout=10)
@@ -78,7 +86,7 @@ def save_book_progress(book_data):
     """保存读取进度
 
     Args:
-        book_data (_type_): _description_
+        book_data (dict): 书籍信息
 
     Raises:
         Exception: _description_
@@ -87,10 +95,10 @@ def save_book_progress(book_data):
     data = {
         "name": book_data["name"],
         "author": book_data["author"],
-        "durChapterIndex": book_data["durChapterIndex"],
-        "durChapterPos": book_data["durChapterPos"],
+        CHAP_INDEX: book_data[CHAP_INDEX],
+        CHAP_POS: book_data[CHAP_POS],
         "durChapterTime": dct,
-        "durChapterTitle": book_data["durChapterTitle"],
+        CHAP_TITLE: book_data[CHAP_TITLE],
     }
 
     # 将数据转换为 JSON 格式
@@ -102,6 +110,6 @@ def save_book_progress(book_data):
                              data=json_data,
                              headers=headers, timeout=10).json()
     if response["isSuccess"]:
-        print(f"章节：{data['durChapterIndex']}  同步读取进度：{data['durChapterPos']}")
+        print(f"章节：{data[CHAP_INDEX]}  同步读取进度：{data[CHAP_POS]}")
     else:
         raise ValueError("进度保存错误！" + response["errorMsg"])

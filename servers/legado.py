@@ -1,44 +1,88 @@
-import requests
-import urllib
-import time
+"""阅读app 相关的webapi"""
+
 import datetime
 import json
+import time
+import urllib
+
+import requests
 
 # https://github.com/gedoor/legado
 # 阅读app ip和端口
-host_book = "http://192.168.31.5:1122"
+HOST_BOOK = "http://192.168.31.5:1122"
 
 
-# *******************  阅读app 相关的webapi  *******************
-# 获取书架
-def get_book_shelf(n=0):
-    data = requests.get(host_book + '/getBookshelf').json()["data"]
+def get_book_shelf(book_n=0):
+    """获取书架
+
+    Args:
+        n (int, optional): _description_. Defaults to 0.
+
+    Returns:
+        dict: 书籍信息
+    """
+    url = HOST_BOOK + '/getBookshelf'
+    print(url)
+    response = requests.get(url, timeout=10)
+    print(response)
     # 第几本数，建议不要动，就第一本书就行，
     # 想读某一本书的话，手机上点一下那本书
-    return data[n]
+    return response.json()["data"][book_n]
 
 
 def data2url(book_data):
+    """_summary_
+
+    Args:
+        book_data (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     return urllib.parse.quote(book_data["bookUrl"])
 
 
-# 获取书某一章节的文本
-def get_book_txt(book_data, index=0):
-    url = "%s/getBookContent?url=%s&index=%d" % (host_book,
-                                                 data2url(book_data), index)
-    response_j = requests.get(url).json()
-    return response_j["data"]
+def get_book_txt(book_data):
+    """获取书某一章节的文本
+
+    Args:
+        book_data (_type_): _description_
+        index (int, optional): _description_. Defaults to 0.
+
+    Returns:
+        _type_: _description_
+    """
+    url = f"{HOST_BOOK}/getBookContent"
+    params = f"url={data2url(book_data)}&index={book_data['durChapterIndex']}"
+
+    response = requests.get(f"{url}?{params}", timeout=10)
+
+    return response.json()["data"]
 
 
-# 获取书章节目录
-def getChapterList(book_data):
-    url = "%s/getChapterList?url=%s" % (host_book, data2url(book_data))
-    rp = requests.get(url)
-    return rp.json()["data"]
+def get_chapter_list(book_data):
+    """获取书章节目录
+
+    Args:
+        book_data (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    url = f"{HOST_BOOK}/getChapterList?url={data2url(book_data)}"
+    response = requests.get(url, timeout=10)
+    return response.json()["data"]
 
 
-# 保存读取进度
-def saveBookProgress(book_data):
+def save_book_progress(book_data):
+    """保存读取进度
+
+    Args:
+        book_data (_type_): _description_
+
+    Raises:
+        Exception: _description_
+    """
     dct = int(time.mktime(datetime.datetime.now().timetuple()) * 1000)
     data = {
         "name": book_data["name"],
@@ -54,14 +98,10 @@ def saveBookProgress(book_data):
 
     # 设置请求头中的 Content-Type 为 application/json
     headers = {'Content-Type': 'application/json'}
-    rj = requests.post(host_book + "/saveBookProgress",
-                       data=json_data,
-                       headers=headers).json()
-    if not rj["isSuccess"]:
-        raise Exception("进度保存错误！" + rj["errorMsg"])
+    response = requests.post(HOST_BOOK + "/saveBookProgress",
+                             data=json_data,
+                             headers=headers, timeout=10).json()
+    if response["isSuccess"]:
+        print(f"章节：{data['durChapterIndex']}  同步读取进度：{data['durChapterPos']}")
     else:
-        print("章节：%d  同步读取进度：%d" %
-              (data["durChapterIndex"], data["durChapterPos"]))
-
-
-# *******************  阅读app 相关的webapi  *******************
+        raise ValueError("进度保存错误！" + response["errorMsg"])

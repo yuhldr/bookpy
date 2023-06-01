@@ -55,3 +55,9 @@
 
     运行 [main.py](main.py) 即可
 
+
+## 贡献说明
+
+```bash
+pylint $(git ls-files '*.py')
+```

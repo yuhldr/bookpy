@@ -1,11 +1,12 @@
-'''配置'''
+"""一些工具
+"""
 from tools.config import get_config
 
 
-def get_config_server():
+def get_config_tts():
     """_summary_
 
     Returns:
         _type_: _description_
     """
-    return get_config()["server"]
+    return get_config()["tts"]

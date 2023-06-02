@@ -1,20 +1,11 @@
 """主文件"""
-
-import json
-import os
-import shutil
 import threading
 
-from servers.legado import (CHAP_INDEX, CHAP_POS, CHAP_TITLE, get_book_shelf,
-                            get_book_txt, get_chapter_list, save_book_progress)
+from servers import legado as lg
 from tools import split_text
-from tools.tts import download_thread, play_thread
-
-# 缓存位置
-# path_cache = "./"
-# path_config = "./"
-path_cache = os.getenv("HOME") + "/.cache/tts/"
-path_config = os.getenv("HOME") + "/.config/tts/"
+from tools.cache import get_cache_mp3, get_legado, save_legado
+from tools.config import get_config
+from tts.edge import download_mp3, play_mp3
 
 
 def save_jd(book_data):
@@ -23,12 +14,8 @@ def save_jd(book_data):
     Args:
         book_data (dict): 请求书架获得的书籍信息
     """
-    save_book_progress(book_data)
-    with open(path_config + "jd.json", 'w', encoding="utf-8") as file:
-        json.dump(book_data,
-                  file,
-                  indent=4,
-                  ensure_ascii=False)
+    lg.save_book_progress(book_data)
+    save_legado(book_data)
 
 
 def init(book_n):
@@ -40,19 +27,13 @@ def init(book_n):
     Returns:
         dict: 请求书架获得的书籍信息
     """
-    if not os.path.exists(path_config):
-        os.mkdir(path_config)
 
-    if os.path.exists(path_cache):
-        shutil.rmtree(path_cache)
-    os.mkdir(path_cache)
+    config = get_config()
 
-    with open(path_config + "jd.json", "r", encoding="utf-8") as file:
-        book_data = json.load(file)
-    if "force" in book_data and book_data["force"]:
-        return book_data
+    if "force" in config and config["force"]:
+        return get_legado()
 
-    return get_book_shelf(book_n)
+    return lg.get_book_shelf(book_n)
 
 
 def read_chap(book_data, dcp, path):
@@ -65,13 +46,13 @@ def read_chap(book_data, dcp, path):
     """
     # 先把这个章节的目录读一下，方便预下载下一段
     file_last = f"{path}.mp3"
-    download_thread(book_data[CHAP_TITLE], file_last)
+    download_mp3(book_data[lg.CHAP_TITLE], file_last)
 
     # 把这一章节分割一下，防止有些段落太短，浪费
     # ts，分割以后的文本数组
     # p2s，分割以后的每一段是第几个字符，方便保存阅读进度
     # n，之前读到第几个分割点了
-    book_txt = get_book_txt(book_data)
+    book_txt = lg.get_book_txt(book_data)
     txt_list, p2s, n_last = split_text(book_txt, dcp)
 
     print(f"上次：{n_last}/{len(txt_list)}\n\n")
@@ -84,16 +65,16 @@ def read_chap(book_data, dcp, path):
         print(f"{j}/{len(txt_list) - n_last} {n_chap - 1}/{len(txt_list)}")
 
         # 保存阅读进度
-        book_data[CHAP_POS] = p2s[n_chap]
+        book_data[lg.CHAP_POS] = p2s[n_chap]
         save_jd(book_data)
 
         # 多线程读之前下载好的，防止卡顿、等待
-        play_t = threading.Thread(target=play_thread, args=(file_last, ))
+        play_t = threading.Thread(target=play_mp3, args=(file_last, ))
         play_t.start()
         file_last = f"{path}-{n_chap}({len(txt_list)}).mp3"
 
         # 多线程预下载下一段落
-        download_t = threading.Thread(target=download_thread,
+        download_t = threading.Thread(target=download_mp3,
                                       args=(txt_list[n_chap], file_last))
         download_t.start()
 
@@ -102,7 +83,7 @@ def read_chap(book_data, dcp, path):
 
     print("\n====最后")
     # 把最后一段下载好的播放
-    play_thread(file_last)
+    play_mp3(file_last)
 
 
 def main(book_n=0, chap=100):
@@ -116,22 +97,21 @@ def main(book_n=0, chap=100):
     # 获取当前第一本书的信息
     book_data = init(book_n)
     # 获取书的目录
-    chaps = get_chapter_list(book_data)
+    chaps = lg.get_chapter_list(book_data)
 
     # 默认听100章节，自动停止
     for i in range(chap):
 
         dcp = 0
         if i == 0:
-            dcp = book_data[CHAP_POS]
+            dcp = book_data[lg.CHAP_POS]
         else:
-            book_data[CHAP_INDEX] += 1
+            book_data[lg.CHAP_INDEX] += 1
 
-        book_data[CHAP_TITLE] = chaps[book_data[CHAP_INDEX]]["title"]
-        print(f"========= {book_data[CHAP_TITLE]} ======")
+        book_data[lg.CHAP_TITLE] = chaps[book_data[lg.CHAP_INDEX]]["title"]
+        print(f"========= {book_data[lg.CHAP_TITLE]} ======")
 
-        path = f"{path_cache}{book_data[CHAP_INDEX]}"
-
+        path = get_cache_mp3(str(book_data[lg.CHAP_INDEX]))
         read_chap(book_data, dcp, path)
 
 
@@ -140,8 +120,8 @@ def test_play():
     """
     txt = "恭喜！配置成功！快打开阅读app，并修改ip地址吧！"
     file = "test.webm"
-    download_thread(txt, file)
-    play_thread(file)
+    download_mp3(txt, file)
+    play_mp3(file)
 
 
 # test_play()

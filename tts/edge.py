@@ -6,8 +6,10 @@ import subprocess
 
 import edge_tts
 
+from tts import get_config_tts
 
-def play_thread(file_path, line_app="mpv"):
+
+def play_mp3(file_path, line_app="mpv"):
     """子线程阅读
 
     Args:
@@ -23,33 +25,26 @@ def play_thread(file_path, line_app="mpv"):
 
 
 async def tts_main(text,
-                   file,
-                   voice="zh-CN-XiaoxiaoNeural",
-                   rate="+15%") -> None:
+                   file) -> None:
     """异步文本转音频，并保存本地
 
     Args:
         text (_type_): 文本
         file (_type_): 保存的音频文件
-        voice (str, optional): 朗读人. Defaults to "zh-CN-XiaoxiaoNeural".
-        rate (str, optional): 朗读速率. Defaults to "+15%".
     """
-    communicate = edge_tts.Communicate(text, voice, rate=rate)
+    cfg = get_config_tts()["edge"]
+    communicate = edge_tts.Communicate(text, cfg["voice"], rate=cfg["rate"])
     await communicate.save(file)
 
 
-def download_thread(text, file,
-                    voice="zh-CN-XiaoxiaoNeural",
-                    rate="+15%"):
+def download_mp3(text, file):
     """子线程下载音频
 
     Args:
         text (_type_): 文本
         file (_type_): 保存的音频文件
-        voice (str, optional): 朗读人. Defaults to "zh-CN-XiaoxiaoNeural".
-        rate (str, optional): 朗读速率. Defaults to "+15%".
     """
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    loop.run_until_complete(tts_main(text, file, voice, rate))
+    loop.run_until_complete(tts_main(text, file))
     loop.close()

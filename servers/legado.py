@@ -7,9 +7,9 @@ import urllib
 
 import requests
 
+from servers import get_config_server
+
 # https://github.com/gedoor/legado
-# 阅读app ip和端口
-HOST_BOOK = "http://192.168.31.5:1122"
 
 # 当前阅读位置：第几个字符
 CHAP_POS = "durChapterPos"
@@ -17,6 +17,15 @@ CHAP_POS = "durChapterPos"
 CHAP_INDEX = "durChapterIndex"
 # 当前章节题目
 CHAP_TITLE = "durChapterTitle"
+
+
+def get_base_url():
+    """设置ip
+
+    Args:
+    """
+    config = get_config_server()["legado"]
+    return f'http://{config["ip"]}:{config["port"]}'
 
 
 def get_book_shelf(book_n=0):
@@ -28,7 +37,7 @@ def get_book_shelf(book_n=0):
     Returns:
         dict: 书籍信息
     """
-    url = HOST_BOOK + '/getBookshelf'
+    url = get_base_url() + '/getBookshelf'
     print(url)
     response = requests.get(url, timeout=10)
     print(response)
@@ -59,7 +68,7 @@ def get_book_txt(book_data):
     Returns:
         str: 某一章节的文字
     """
-    url = f"{HOST_BOOK}/getBookContent"
+    url = f"{get_base_url()}/getBookContent"
     # 因为data2url需要编码的问题，不能写成字典
     params = f"url={data2url(book_data)}&index={book_data[CHAP_INDEX]}"
 
@@ -77,7 +86,7 @@ def get_chapter_list(book_data):
     Returns:
         list: 目录json，包含title,url等等
     """
-    url = f"{HOST_BOOK}/getChapterList?url={data2url(book_data)}"
+    url = f"{get_base_url()}/getChapterList?url={data2url(book_data)}"
     response = requests.get(url, timeout=10)
     return response.json()["data"]
 
@@ -106,10 +115,12 @@ def save_book_progress(book_data):
 
     # 设置请求头中的 Content-Type 为 application/json
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(HOST_BOOK + "/saveBookProgress",
+    response = requests.post(get_base_url() + "/saveBookProgress",
                              data=json_data,
-                             headers=headers, timeout=10).json()
-    if response["isSuccess"]:
+                             headers=headers, timeout=10)
+    print(response)
+
+    if response.json()["isSuccess"]:
         print(f"章节：{data[CHAP_INDEX]}  同步读取进度：{data[CHAP_POS]}")
     else:
-        raise ValueError("进度保存错误！" + response["errorMsg"])
+        raise ValueError("进度保存错误！" + response.json()["errorMsg"])

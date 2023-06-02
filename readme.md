@@ -29,27 +29,53 @@
     pip3 install -r requirements.txt
     ```
 
-3. 终端安装 `mpv`
+3. 播放程序设置
 
-    我用的 linux，比如 `ubuntu`，直接输入 `sudo apt install mpv` 即可，其他的自己想办法
-    
-    > windows系统（WSL不需要）可能需要在 [tools/tts.py](tools/tts.py) 修改 `play_thread` 函数的参数 `line_app="mpv"`，`mpv` 改成你的 `mpv命令所在路径`
+    目前测试了 `mpv` 和 `ffmpeg`，两个都行，选一个
+
+    我用的 linux，比如 `ubuntu`，直接输入 `sudo apt install mpv` 或 `sudo apt install ffmpeg` 即可，其他的自己想办法
+
+    ```bash
+    vim ~/.config/bpy/config.json
+    ```
+    其中
+    ```json
+    "play":{
+        "code": ["ffplay", "-nodisp", "-autoexit", "-loglevel", "info"]
+    },
+    ```
+
+    修改 `code` 对应的值，比如，如果使用 `mpv` 可以改成如下
+
+    ```json
+    "play":{
+        "code": ["mpv"]
+    },
+    ```
 
 4. 测试是否修改成功
 
     打开 [main.py](main.py)，最后一行 `main()` 改成 `test_play()`，然后运行这个文件，如果听到声音，说明环境配置成功！
 
-    > 注意，把刚才修改的 `test_play()` 改回来 `main()`
+    > 注意，测试以后，把刚才修改的 `test_play()` 改回来 `main()`
 
 ### 开始使用
 
 1. 打开 `阅读app` 的web服务
 
-    手机与电脑同一个`局域网`，然后打开 [阅读app](https://github.com/gedoor/legado)，设置中点开 `Web服务`，注意那个ip地址
+    手机与电脑同一个`局域网`，然后打开 [阅读app](https://github.com/gedoor/legado)，设置中点开 `Web服务`，注意那个ip地址（`:` 后面是端口）
 
-2. 修改`legado.py`
-
-    修改 [servers/legado.py](servers/legado.py)，里面的 `http://192.168.31.5:1122` 改成刚才你看到的 `ip`
+2. 修改本地配置文件
+    
+    ```bash
+    vim ~/.config/bpy/config.json
+    ```
+    其中
+    ```json
+    "ip": "192.168.31.5",
+    "port": "1122"
+    ```
+    里面的 `192.168.31.5` 改成刚才你看到的 `ip`，端口 `1122` 一般不用改
 
 3. 运行
 
@@ -58,6 +84,13 @@
 
 ## 贡献说明
 
+请保证严格遵守 `pylint`
+
 ```bash
 pylint $(git ls-files '*.py')
 ```
+
+## 后续开发说明
+
+- 大概会做ui
+- 大概会做朗读本地pdf、txt等格式文本

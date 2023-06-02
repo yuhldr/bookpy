@@ -40,7 +40,6 @@ def get_book_shelf(book_n=0):
     url = get_base_url() + '/getBookshelf'
     print(url)
     response = requests.get(url, timeout=10)
-    print(response)
     # 第几本数，建议不要动，就第一本书就行，
     # 想读某一本书的话，手机上点一下那本书
     return response.json()["data"][book_n]
@@ -118,9 +117,8 @@ def save_book_progress(book_data):
     response = requests.post(get_base_url() + "/saveBookProgress",
                              data=json_data,
                              headers=headers, timeout=10)
-    print(response)
 
     if response.json()["isSuccess"]:
-        print(f"章节：{data[CHAP_INDEX]}  同步读取进度：{data[CHAP_POS]}")
+        print(f"{data[CHAP_TITLE]}（{data[CHAP_INDEX]}）：{data[CHAP_POS]}")
     else:
         raise ValueError("进度保存错误！" + response.json()["errorMsg"])

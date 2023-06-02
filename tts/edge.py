@@ -9,17 +9,16 @@ import edge_tts
 from tts import get_config_tts
 
 
-def play_mp3(file_path, line_app="mpv"):
+def play_mp3(file_path):
     """子线程阅读
 
     Args:
         file_path (_type_): 音频文件路径
-        line_app (str, optional): 这里用的是 `mpv` 你也可以用其他的命令行工具. Defaults to "mpv".
     """
-    with subprocess.Popen([
-            line_app,
-            file_path,
-    ]) as process:
+    cfg = get_config_tts()["play"]["code"]
+    cfg.append(file_path)
+
+    with subprocess.Popen(cfg) as process:
         process.communicate()
     os.remove(file_path)
 

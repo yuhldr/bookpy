@@ -82,6 +82,64 @@
     运行 [main.py](main.py) 即可
 
 
+### 其他配置
+
+配置文件路径
+
+```bash
+~/.config/bpy/config.json
+```
+
+完整配置文件
+
+```json
+{
+    "server": {
+        "legado": {
+            "ip": "192.168.31.6",
+            "port": "1122"
+        }
+    },
+    "tts": {
+        "play":{
+            "code": ["mpv"]
+        },
+        "edge": {
+            "voice": "zh-CN-XiaoxiaoNeural",
+            "rate": "+15%"
+        }
+    }
+}
+```
+
+其中
+
+- tts-edge-voice
+
+    语音：默认 `zh-CN-XiaoxiaoNeural`
+
+    - `zh-CN-XiaoxiaoNeural` 女
+    - `zh-CN-XiaoyiNeural` 女
+    - `zh-CN-YunjianNeural` 男
+    - `zh-CN-YunxiNeural` 男
+    - `zh-CN-YunxiaNeural` 男
+    - `zh-CN-YunyangNeural` 男
+    - `zh-CN-liaoning-XiaobeiNeural` 女
+    - `zh-CN-shaanxi-XiaoniNeural` 女
+    - `zh-HK-HiuGaaiNeural` 女
+    - `zh-HK-HiuMaanNeural` 女
+    - `zh-HK-WanLungNeural` 男
+    - `zh-TW-HsiaoChenNeural` 女
+    - `zh-TW-HsiaoYuNeural` 女
+    - `zh-TW-YunJheNeural` 男
+    - `zu-ZA-ThandoNeural` 女
+    - `zu-ZA-ThembaNeural` 男
+
+- rate
+
+    提高 `tts文本转语音` 的mp3文件读音速度
+
+
 ## 贡献说明
 
 请保证严格遵守 `pylint`

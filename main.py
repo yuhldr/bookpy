@@ -3,7 +3,7 @@ import threading
 
 from servers import legado as lg
 from tools import split_text
-from tools.cache import get_cache_mp3, get_legado, save_legado
+from tools.cache import get_cache_mp3, get_legado, rm_cache_mp3, save_legado
 from tools.config import get_config
 from tts.edge import download_mp3, play_mp3
 
@@ -32,6 +32,8 @@ def init(book_n):
 
     if "force" in config and config["force"]:
         return get_legado()
+
+    rm_cache_mp3()
 
     return lg.get_book_shelf(book_n)
 
@@ -101,7 +103,6 @@ def main(book_n=0, chap=100):
 
     # 默认听100章节，自动停止
     for i in range(chap):
-
         dcp = 0
         if i == 0:
             dcp = book_data[lg.CHAP_POS]

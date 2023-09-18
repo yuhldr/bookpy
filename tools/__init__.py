@@ -1,5 +1,4 @@
-"""一些工具
-"""
+"""一些工具"""
 
 
 def split_text(text_all, dcp=0):
@@ -36,4 +35,7 @@ def split_text(text_all, dcp=0):
             text = ""
     print(f"章节分割：{len(result)}|{len(p2s)} 字符索引位置\n{p2s}")
 
-    return result, p2s, n_last-1
+    if n_last > 0:
+        n_last -= 1
+
+    return result, p2s, n_last

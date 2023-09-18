@@ -1,5 +1,4 @@
-"""一些工具
-"""
+"""一些工具"""
 from tools.config import get_config
 
 

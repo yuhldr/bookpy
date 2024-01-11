@@ -57,13 +57,13 @@ def read_chap(book_data, dcp, path):
     book_txt = lg.get_book_txt(book_data)
     txt_list, p2s, n_last = split_text(book_txt, dcp)
 
-    print(f"上次：{n_last}/{len(txt_list)}\n\n")
-    print(f"{dcp}/{p2s[-1]}  ts={len(txt_list)} ps={len(p2s)}")
+    # print(f"上次：{n_last}/{len(txt_list)}\n\n")
+    # print(f"{dcp}/{p2s[-1]}  ts={len(txt_list)} ps={len(p2s)}")
 
     # 根据阅读进度，跳过之前读过的（最近一章没跳过）
     for j in range(len(txt_list) - n_last):
         n_chap = n_last + j
-        print("\n\n************\n")
+        print("************")
         print(f"{j}/{len(txt_list) - n_last} {n_chap - 1}/{len(txt_list)}")
 
         # 保存阅读进度
@@ -110,7 +110,7 @@ def main(book_n=0, chap=100):
             book_data[lg.CHAP_INDEX] += 1
 
         book_data[lg.CHAP_TITLE] = chaps[book_data[lg.CHAP_INDEX]]["title"]
-        print(f"========= {book_data[lg.CHAP_TITLE]} ======")
+        # print(f"========= {book_data[lg.CHAP_TITLE]} ======")
 
         path = get_cache_mp3(str(book_data[lg.CHAP_INDEX]))
         read_chap(book_data, dcp, path)

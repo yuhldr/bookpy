@@ -114,11 +114,12 @@ def save_book_progress(book_data):
 
     # 设置请求头中的 Content-Type 为 application/json
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(get_base_url() + "/saveBookProgress",
+    response = requests.post(f"{get_base_url()}/saveBookProgress",
                              data=json_data,
                              headers=headers, timeout=10)
 
-    if response.json()["isSuccess"]:
-        print(f"{data[CHAP_TITLE]}（{data[CHAP_INDEX]}）：{data[CHAP_POS]}")
-    else:
-        raise ValueError("进度保存错误！" + response.json()["errorMsg"])
+    if not response.json()["isSuccess"]:
+        raise ValueError(f'进度保存错误！\n{response.json()["errorMsg"]}')
+
+    # print(f"{data[CHAP_TITLE]}（{data[CHAP_INDEX]}）：{data[CHAP_POS]}")
+    print(f"{data[CHAP_INDEX]}：{data[CHAP_POS]}")

@@ -2,6 +2,11 @@
 import json
 import os
 
+PATH_CONFIG = f'{os.getenv("HOME")}/.config/bpy/'
+if not os.path.exists(PATH_CONFIG):
+    os.mkdir(PATH_CONFIG)
+PATH_CONFIG = f'{PATH_CONFIG}/config.json'
+
 
 DEFAULT_CONFIG = {
     "server": {
@@ -21,36 +26,28 @@ DEFAULT_CONFIG = {
         }
     }
 }
-FILE_CONFIG = "config.json"
 
 
-def get_config_path():
+def get_config(path=PATH_CONFIG):
     """_summary_
 
-    Returns:
-        str: 配置文件夹路径
-    """
-    return os.getenv("HOME") + "/.config/bpy/"
-
-
-if not os.path.exists(get_config_path()):
-    os.mkdir(get_config_path())
-
-
-def get_config():
-    """_summary_
+    Args:
+        path (_type_, optional): _description_. Defaults to PATH_CONFIG.
 
     Returns:
         dict: 配置数据
     """
-    path = f"{get_config_path()}{FILE_CONFIG}"
 
     if not os.path.exists(path):
+        print("配置文件不存在，已创建默认配置文件")
         save_config(DEFAULT_CONFIG)
         return DEFAULT_CONFIG
 
     with open(path, "r", encoding="utf-8") as file:
-        return json.load(file)
+        print(f"读取配置文件: {path}")
+        data = json.load(file)
+        print(data["server"]["legado"]["ip"])
+        return data
 
 
 def save_config(config):
@@ -59,9 +56,5 @@ def save_config(config):
     Args:
         config (dict): 配置数据
     """
-    path = f"{get_config_path()}{FILE_CONFIG}"
-    with open(path, 'w', encoding="utf-8") as file:
-        json.dump(config,
-                  file,
-                  indent=4,
-                  ensure_ascii=False)
+    with open(PATH_CONFIG, 'w', encoding="utf-8") as file:
+        json.dump(config, file, indent=4, ensure_ascii=False)

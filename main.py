@@ -55,16 +55,16 @@ def read_chap(book_data, dcp, path):
     # p2s，分割以后的每一段是第几个字符，方便保存阅读进度
     # n，之前读到第几个分割点了
     book_txt = lg.get_book_txt(book_data)
-    txt_list, p2s, n_last = split_text(book_txt, dcp)
+    txts, p2s, n_last = split_text(book_txt, dcp)
 
     # print(f"上次：{n_last}/{len(txt_list)}\n\n")
     # print(f"{dcp}/{p2s[-1]}  ts={len(txt_list)} ps={len(p2s)}")
 
     # 根据阅读进度，跳过之前读过的（最近一章没跳过）
-    for j in range(len(txt_list) - n_last):
+    for j in range(len(txts) - n_last):
         n_chap = n_last + j
-        print("************")
-        print(f"{j}/{len(txt_list) - n_last} {n_chap - 1}/{len(txt_list)}")
+        print(
+            f"****** {j}/{len(txts) - n_last} {n_chap - 1}/{len(txts)} ******")
 
         # 保存阅读进度
         book_data[lg.CHAP_POS] = p2s[n_chap]
@@ -73,11 +73,11 @@ def read_chap(book_data, dcp, path):
         # 多线程读之前下载好的，防止卡顿、等待
         play_t = threading.Thread(target=play_mp3, args=(file_last, ))
         play_t.start()
-        file_last = f"{path}-{n_chap}({len(txt_list)}).mp3"
+        file_last = f"{path}-{n_chap}({len(txts)}).mp3"
 
         # 多线程预下载下一段落
         download_t = threading.Thread(target=download_mp3,
-                                      args=(txt_list[n_chap], file_last))
+                                      args=(txts[n_chap], file_last))
         download_t.start()
 
         play_t.join()

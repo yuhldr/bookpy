@@ -33,7 +33,6 @@ def split_text(text_all, dcp=0):
 
             last = last + len(text)
             text = ""
-    print(f"分割：{len(result)}|{len(p2s)} 字符索引位置\n{p2s}")
 
     if n_last > 0:
         n_last -= 1

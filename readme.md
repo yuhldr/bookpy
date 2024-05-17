@@ -72,10 +72,10 @@
     ```
     其中
     ```json
-    "ip": "192.168.31.5",
+    "ip": "192.168.1.6",
     "port": "1122"
     ```
-    里面的 `192.168.31.5` 改成刚才你看到的 `ip`，端口 `1122` 一般不用改
+    里面的 `192.168.1.6` 改成刚才你看到的 `ip`，端口 `1122` 一般不用改
 
 3. 运行
 
@@ -94,19 +94,30 @@
 
 ```json
 {
+    "version": 1,
     "server": {
+        "key": "legado",
         "legado": {
-            "ip": "192.168.31.6",
+            "ip": "192.168.1.6",
             "port": "1122"
         }
     },
     "tts": {
-        "play":{
-            "code": ["mpv"]
+        "play": {
+            "code": [
+                "ffplay",
+                "-nodisp",
+                "-autoexit",
+                "-loglevel",
+                "quiet"
+            ]
         },
-        "edge": {
-            "voice": "zh-CN-XiaoxiaoNeural",
-            "rate": "+15%"
+        "download": {
+            "key": "edge",
+            "edge": {
+                "voice": "zh-CN-XiaoxiaoNeural",
+                "rate": "+30%"
+            }
         }
     }
 }

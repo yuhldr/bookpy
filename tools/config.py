@@ -7,29 +7,41 @@ if not os.path.exists(PATH_CONFIG):
     os.mkdir(PATH_CONFIG)
 PATH_CONFIG = f'{PATH_CONFIG}/config.json'
 
+CONFIG_DATA = None
+
 
 DEFAULT_CONFIG = {
+    "version": 1,
     "server": {
+        "key": "legado",
         "legado": {
-            "ip": "192.168.31.6",
+            "ip": "192.168.1.6",
             "port": "1122"
         }
     },
     "tts": {
         "play": {
-            "code": ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet"]
-            # "code": ["mpv"]
+            "code": [
+                "ffplay",
+                "-nodisp",
+                "-autoexit",
+                "-loglevel",
+                "quiet"
+            ]
         },
-        "edge": {
-            "voice": "zh-CN-XiaoxiaoNeural",
-            "rate": "+15%"
+        "download": {
+            "key": "edge",
+            "edge": {
+                "voice": "zh-CN-XiaoxiaoNeural",
+                "rate": "+30%"
+            }
         }
     }
 }
 
 
 def get_config(path=PATH_CONFIG):
-    """_summary_
+    """获取配置
 
     Args:
         path (_type_, optional): _description_. Defaults to PATH_CONFIG.
@@ -46,6 +58,9 @@ def get_config(path=PATH_CONFIG):
     with open(path, "r", encoding="utf-8") as file:
         print(f"读取配置文件: {path}")
         data = json.load(file)
+        if "version" not in data or data["version"] != DEFAULT_CONFIG["version"]:
+            save_config(DEFAULT_CONFIG)
+            data = DEFAULT_CONFIG
         print(data["server"]["legado"]["ip"])
         return data
 

@@ -7,8 +7,6 @@ import urllib
 
 import requests
 
-from servers import get_config_server
-
 # https://github.com/gedoor/legado
 
 # 当前阅读位置：第几个字符
@@ -19,25 +17,30 @@ CHAP_INDEX = "durChapterIndex"
 CHAP_TITLE = "durChapterTitle"
 
 
-def get_base_url():
+def get_base_url(conf_legado: dict):
     """设置ip
 
     Args:
+        conf_legado (dict): 配置 conf["legado"]. 
+
+
+    Returns:
+        _type_: _description_
     """
-    config = get_config_server()["legado"]
-    return f'http://{config["ip"]}:{config["port"]}'
+    return f'http://{conf_legado["ip"]}:{conf_legado["port"]}'
 
 
-def get_book_shelf(book_n=0):
+def get_book_shelf(book_n, conf: dict):
     """获取书架
 
     Args:
-        n (int, optional): 第几本书. Defaults to 0.
+        n (int): 第几本书. 
+        conf (dict): 配置 conf["legado"]. 
 
     Returns:
         dict: 书籍信息
     """
-    url = get_base_url() + '/getBookshelf'
+    url = get_base_url(conf) + '/getBookshelf'
     print(url)
     response = requests.get(url, timeout=10)
     # 第几本数，建议不要动，就第一本书就行，
@@ -57,17 +60,17 @@ def data2url(book_data):
     return urllib.parse.quote(book_data["bookUrl"])
 
 
-def get_book_txt(book_data):
+def get_book_txt(book_data, conf):
     """获取书某一章节的文本
 
     Args:
         book_data (dict): 书籍信息
-        index (int, optional): _description_. Defaults to 0.
+        conf (dict): 配置 conf["legado"]. 
 
     Returns:
         str: 某一章节的文字
     """
-    url = f"{get_base_url()}/getBookContent"
+    url = f"{get_base_url(conf)}/getBookContent"
     # 因为data2url需要编码的问题，不能写成字典
     params = f"url={data2url(book_data)}&index={book_data[CHAP_INDEX]}"
 
@@ -76,21 +79,26 @@ def get_book_txt(book_data):
     return response.json()["data"]
 
 
-def get_chapter_list(book_data):
+def get_chapter_list(book_data: dict, conf: dict):
     """获取书章节目录
 
     Args:
         book_data (dict): 书籍信息
+        conf (dict): 配置 conf["legado"]. 
 
     Returns:
         list: 目录json，包含title,url等等
     """
-    url = f"{get_base_url()}/getChapterList?url={data2url(book_data)}"
+    url = f"{get_base_url(conf)}/getChapterList?url={data2url(book_data)}"
     response = requests.get(url, timeout=10)
-    return response.json()["data"]
+    data = response.json()["data"]
+    titles = []
+    for d in data:
+        titles.append(d["title"])
+    return titles
 
 
-def save_book_progress(book_data):
+def save_book_progress(book_data: dict, conf: dict):
     """保存读取进度
 
     Args:
@@ -114,12 +122,11 @@ def save_book_progress(book_data):
 
     # 设置请求头中的 Content-Type 为 application/json
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(f"{get_base_url()}/saveBookProgress",
+    response = requests.post(f"{get_base_url(conf)}/saveBookProgress",
                              data=json_data,
                              headers=headers, timeout=10)
 
     if not response.json()["isSuccess"]:
         raise ValueError(f'进度保存错误！\n{response.json()["errorMsg"]}')
 
-    # print(f"{data[CHAP_TITLE]}（{data[CHAP_INDEX]}）：{data[CHAP_POS]}")
     print(f"{data[CHAP_INDEX]}：{data[CHAP_POS]}")

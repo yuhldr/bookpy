@@ -16,6 +16,11 @@ async def tts_main(text, audio_path, conf):
     Returns:
         _type_: _description_
     """
+
+    if len(conf["key"]) == 0:
+        print("请在配置文件中填写Azure的key")
+        return "请在配置文件中填写Azure的key"
+
     speech_config = speechsdk.SpeechConfig(
         subscription=conf["key"], region=conf["region"])
     speech_config.speech_synthesis_language = conf["language"]

@@ -34,6 +34,13 @@ DEFAULT_CONFIG = {
             "edge": {
                 "voice": "zh-CN-XiaoxiaoNeural",
                 "rate": "+30%"
+            },
+            "azure": {
+                "key": "",
+                "region": "japanwest",
+                "language": "zh-CN",
+                "voice": "zh-CN-XiaoxiaoNeural",
+                "rate": "+30%"
             }
         }
     }

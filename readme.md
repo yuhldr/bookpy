@@ -113,8 +113,15 @@
             ]
         },
         "download": {
-            "key": "edge",
+            "key": "azure",
             "edge": {
+                "voice": "zh-CN-XiaoxiaoNeural",
+                "rate": "+30%"
+            },
+            "azure": {
+                "key": "你自己的密钥xxxxx",
+                "region": "你申请的区域比如：japanwest",
+                "language": "zh-CN",
                 "voice": "zh-CN-XiaoxiaoNeural",
                 "rate": "+30%"
             }
@@ -125,30 +132,37 @@
 
 其中
 
-- tts-edge-voice
+- tts-edge
 
-    语音：默认 `zh-CN-XiaoxiaoNeural`
+    > 免费，不用设置密钥🔑
 
-    - `zh-CN-XiaoxiaoNeural` 女
-    - `zh-CN-XiaoyiNeural` 女
-    - `zh-CN-YunjianNeural` 男
-    - `zh-CN-YunxiNeural` 男
-    - `zh-CN-YunxiaNeural` 男
-    - `zh-CN-YunyangNeural` 男
-    - `zh-CN-liaoning-XiaobeiNeural` 女
-    - `zh-CN-shaanxi-XiaoniNeural` 女
-    - `zh-HK-HiuGaaiNeural` 女
-    - `zh-HK-HiuMaanNeural` 女
-    - `zh-HK-WanLungNeural` 男
-    - `zh-TW-HsiaoChenNeural` 女
-    - `zh-TW-HsiaoYuNeural` 女
-    - `zh-TW-YunJheNeural` 男
-    - `zu-ZA-ThandoNeural` 女
-    - `zu-ZA-ThembaNeural` 男
+    ```py
+    {
+        # 看这里多语言、语音选择：https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/language-support?tabs=tts
+        "voice": "zh-CN-XiaoxiaoNeural",
+        # 语速
+        "rate": "+30%"
+    }
+    ```
 
-- rate
+- azure
 
-    提高 `tts文本转语音` 的mp3文件读音速度
+    > 学生有免费额度，必须申请并设置密钥🔑
+
+    ```py
+    {
+        # 密钥必须设置
+        "key": "你自己的密钥xxxxx",
+        # 区域与你申请密钥选择的区域有关
+        "region": "你申请的区域比如：japanwest",
+        # 看这里多语言、语音选择：https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/language-support?tabs=tts
+        "language": "zh-CN",
+        "voice": "zh-CN-XiaoxiaoNeural",
+        # 语速
+        "rate": "+30%"
+    }
+    ```
+
 
 
 ## 贡献说明

@@ -56,7 +56,10 @@ def download_mp3(text, file, conf: dict):
     Returns:
         _type_: _description_
     """
-    print(text[:20])
+    if len(text) > 20:
+        print(f"{text[:20]} ...")
+    else:
+        print(text[:20])
     return edge_download(text, file, get_td(conf))
 
 

@@ -18,7 +18,7 @@ async def tts_main(text, file, conf) -> None:
     await communicate.save(file)
 
 
-def download_mp3(text, file, conf):
+def download_audio(text, file, conf):
     """子线程下载音频
 
     Args:

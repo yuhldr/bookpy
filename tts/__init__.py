@@ -3,9 +3,8 @@ import copy
 import os
 import subprocess
 
-from tts.edge import download_mp3 as edge_download
-
-TTS_EDGE = "edge"
+from tts.edge import download_audio as edge_download
+from tts.ms_azure import download_audio as azure_download
 
 
 def get_tts_ds(conf: dict):
@@ -20,17 +19,6 @@ def get_tts_ds(conf: dict):
     return conf["tts"]["download"]
 
 
-def get_td_key(conf_tts_download: dict):
-    """哪个下载服务
-
-    Args:
-        conf_tts_download (dict): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    return conf_tts_download["key"]
-
 
 def get_td(conf):
     """获取当前选择的下载服务
@@ -42,7 +30,15 @@ def get_td(conf):
         _type_: _description_
     """
     ds = get_tts_ds(conf)
-    return ds[get_td_key(ds)]
+    # 类似如下
+    # "azure": {
+    #     "key": "xxxxxxxxxxxxxx",
+    #     "region": "japanwest",
+    #     "language": "zh-CN",
+    #     "voice": "zh-CN-XiaoxiaoNeural",
+    #     "rate": "+30%"
+    # }
+    return ds[ds["key"]]
 
 
 def download_mp3(text, file, conf: dict):
@@ -60,6 +56,8 @@ def download_mp3(text, file, conf: dict):
         print(f"{text[:20]} ...")
     else:
         print(text[:20])
+    if get_tts_ds(conf)["key"] == "azure":
+        return azure_download(text, file, get_td(conf))
     return edge_download(text, file, get_td(conf))
 
 

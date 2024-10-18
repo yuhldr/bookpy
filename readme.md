@@ -134,20 +134,23 @@
 
 - tts-edge
 
-    > 免费，不用设置密钥🔑
+    > 免费，不用设置密钥，但是音色少
 
     ```py
     {
-        # 看这里多语言、语音选择：https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/language-support?tabs=tts
+        # 支持的语言和音色：edge-tts --list-voices
         "voice": "zh-CN-XiaoxiaoNeural",
         # 语速
         "rate": "+30%"
     }
     ```
 
+    推荐的音色：
+    - XiaoxiaoNeural
+
 - azure
 
-    > 学生有免费额度，必须申请并设置密钥🔑
+    > 学生有免费额度，必须申请并设置密钥🔑，音色更多
 
     ```py
     {
@@ -162,6 +165,13 @@
         "rate": "+30%"
     }
     ```
+
+    推荐的音色：
+    - XiaoxiaoNeural
+    - XiaochenNeural
+    - XiaochenMultilingualNeural
+    - XiaoshuangNeural
+    - XiaoyouNeural
 
 
 

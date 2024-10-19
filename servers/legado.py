@@ -5,7 +5,7 @@ import json
 import time
 import urllib
 
-import requests
+import aiohttp
 
 # https://github.com/gedoor/legado
 
@@ -30,11 +30,11 @@ def get_base_url(conf_legado: dict):
     return f'http://{conf_legado["ip"]}:{conf_legado["port"]}'
 
 
-def get_book_shelf(book_n, conf: dict):
-    """获取书架
+async def get_book_shelf(book_n, conf: dict):
+    """异步获取书架信息
 
     Args:
-        n (int): 第几本书. 
+        book_n (int): 第几本书
         conf (dict): 配置 conf["legado"]. 
 
     Returns:
@@ -42,10 +42,14 @@ def get_book_shelf(book_n, conf: dict):
     """
     url = get_base_url(conf) + '/getBookshelf'
     print(url)
-    response = requests.get(url, timeout=10)
-    # 第几本数，建议不要动，就第一本书就行，
-    # 想读某一本书的话，手机上点一下那本书
-    return response.json()["data"][book_n]
+
+    # 使用 aiohttp 进行异步 GET 请求
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, timeout=10) as response:
+            resp_json = await response.json(content_type=None)
+
+    # 返回书架中的第 book_n 本书的信息
+    return resp_json["data"][book_n]
 
 
 def data2url(book_data):
@@ -60,8 +64,8 @@ def data2url(book_data):
     return urllib.parse.quote(book_data["bookUrl"])
 
 
-def get_book_txt(book_data, conf):
-    """获取书某一章节的文本
+async def get_book_txt(book_data, conf):
+    """异步获取书某一章节的文本
 
     Args:
         book_data (dict): 书籍信息
@@ -74,13 +78,15 @@ def get_book_txt(book_data, conf):
     # 因为data2url需要编码的问题，不能写成字典
     params = f"url={data2url(book_data)}&index={book_data[CHAP_INDEX]}"
 
-    response = requests.get(f"{url}?{params}", timeout=10)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{url}?{params}", timeout=10) as response:
+            resp_json = await response.json(content_type=None)
 
-    return response.json()["data"]
+    return resp_json["data"]
 
 
-def get_chapter_list(book_data: dict, conf: dict):
-    """获取书章节目录
+async def get_chapter_list(book_data: dict, conf: dict):
+    """异步获取书章节目录
 
     Args:
         book_data (dict): 书籍信息
@@ -90,24 +96,30 @@ def get_chapter_list(book_data: dict, conf: dict):
         list: 目录json，包含title,url等等
     """
     url = f"{get_base_url(conf)}/getChapterList?url={data2url(book_data)}"
-    response = requests.get(url, timeout=10)
-    data = response.json()["data"]
-    titles = []
-    for d in data:
-        titles.append(d["title"])
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, timeout=10) as response:
+            resp_json = await response.json(content_type=None)
+
+    data = resp_json["data"]
+    titles = [d["title"] for d in data]
+
     return titles
 
 
-def save_book_progress(book_data: dict, conf: dict):
-    """保存读取进度
+async def save_book_progress(book_data: dict, conf: dict):
+    """异步保存读取进度
 
     Args:
         book_data (dict): 书籍信息
 
     Raises:
-        Exception: _description_
+        Exception: 进度保存错误时抛出异常
     """
+    # 当前时间戳转换为毫秒级
     dct = int(time.mktime(datetime.datetime.now().timetuple()) * 1000)
+
+    # 构建请求数据
     data = {
         "name": book_data["name"],
         "author": book_data["author"],
@@ -122,11 +134,19 @@ def save_book_progress(book_data: dict, conf: dict):
 
     # 设置请求头中的 Content-Type 为 application/json
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(f"{get_base_url(conf)}/saveBookProgress",
-                             data=json_data,
-                             headers=headers, timeout=10)
 
-    if not response.json()["isSuccess"]:
-        raise ValueError(f'进度保存错误！\n{response.json()["errorMsg"]}')
+    # 使用 aiohttp 进行异步 POST 请求
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{get_base_url(conf)}/saveBookProgress",
+                                data=json_data,
+                                headers=headers,
+                                timeout=10) as response:
+            # 异步获取响应的 JSON 数据
+            resp_json = await response.json(content_type=None)
 
-    print(f"{data[CHAP_INDEX]}：{data[CHAP_POS]}")
+            # 判断请求是否成功
+            if not resp_json["isSuccess"]:
+                raise ValueError(f'进度保存错误！\n{resp_json["errorMsg"]}')
+
+            # 打印章节进度信息
+            print(f"{data[CHAP_INDEX]}：{data[CHAP_POS]}")

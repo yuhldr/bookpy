@@ -39,7 +39,7 @@ def get_server(conf: dict):
     return conf_servers[get_key(conf_servers)]
 
 
-def init(conf: dict):
+async def init(conf: dict):
     """初始化：创建文件夹、获取书籍信息
 
     Args:
@@ -60,8 +60,8 @@ def init(conf: dict):
 
     if key == SERVER_LEGADO:
 
-        book_data = lg.get_book_shelf(0, server)
-        cl = lg.get_chapter_list(book_data, server)
+        book_data = await lg.get_book_shelf(0, server)
+        cl = await lg.get_chapter_list(book_data, server)
 
         # 只要之后的章节名字
         book_data["chaps"] = cl[book_data["durChapterIndex"]:]
@@ -69,7 +69,7 @@ def init(conf: dict):
     return book_data
 
 
-def play_end(pos, data, conf: dict):
+async def play_end(pos, data, conf: dict):
     """每次读完需要做什么
 
     Args:
@@ -89,10 +89,8 @@ def play_end(pos, data, conf: dict):
         lg.save_book_progress(data, server)
         save_play_end(data, SERVER_LEGADO)
 
-    return data
 
-
-def get_txts(i: int, data: dict, conf: dict):
+async def get_txts(i: int, data: dict, conf: dict):
     """返回待朗读的文本
 
     Args:
@@ -117,7 +115,7 @@ def get_txts(i: int, data: dict, conf: dict):
             data[lg.CHAP_INDEX] += 1
             data[lg.CHAP_POS] = 0
 
-        book_txt = lg.get_book_txt(data, server)
+        book_txt = await lg.get_book_txt(data, server)
         txts, p2s, n_last = split_text(book_txt, data[lg.CHAP_POS])
 
         return txts, p2s, n_last

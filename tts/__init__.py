@@ -7,39 +7,6 @@ from tts.edge import download_audio as edge_download
 from tts.ms_azure import download_audio as azure_download
 
 
-def get_tts_ds(conf: dict):
-    """下载相关配置
-
-    Args:
-        conf (dict): 所配置
-
-    Returns:
-        _type_: _description_
-    """
-    return conf["tts"]["download"]
-
-
-def get_td(conf):
-    """获取当前选择的下载服务
-
-    Args:
-        conf (dict): 完整配置
-
-    Returns:
-        _type_: _description_
-    """
-    ds = get_tts_ds(conf)
-    # 类似如下
-    # "azure": {
-    #     "key": "xxxxxxxxxxxxxx",
-    #     "region": "japanwest",
-    #     "language": "zh-CN",
-    #     "voice": "zh-CN-XiaoxiaoNeural",
-    #     "rate": "+30%"
-    # }
-    return ds[ds["key"]]
-
-
 async def download_mp3(text, file, conf: dict):
     """下载视频
 
@@ -55,10 +22,15 @@ async def download_mp3(text, file, conf: dict):
         print(f"{text[:20]} ...")
     else:
         print(text[:20])
-    if get_tts_ds(conf)["key"] == "azure":
-        await azure_download(text, file, get_td(conf))
+
+    conf_ttss = conf["tts"]["download"]
+    conf_tts_key = conf_ttss["key"]
+    conf_tts = conf_ttss[conf_tts_key]
+
+    if conf_tts_key == "azure":
+        await azure_download(text, file, conf_tts)
     else:
-        await edge_download(text, file, get_td(conf))
+        await edge_download(text, file, conf_tts)
 
 
 async def play_mp3(file_path, conf: dict):

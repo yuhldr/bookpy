@@ -1,4 +1,5 @@
 """一些工具"""
+import urllib
 
 
 def split_text(text_all, dcp=0):
@@ -38,3 +39,15 @@ def split_text(text_all, dcp=0):
         n_last -= 1
 
     return result, p2s, n_last
+
+
+def data2url(url):
+    """将书籍信息URL编码
+
+    Args:
+        url (str): url
+
+    Returns:
+        str: 编码以后的图书信息url
+    """
+    return urllib.parse.quote(url)

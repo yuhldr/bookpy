@@ -22,14 +22,10 @@ async def download_audio(text, audio_path, conf):
 
     speech_config = speechsdk.SpeechConfig(
         subscription=conf["key"], region=conf["region"])
-    speech_config.speech_synthesis_language = conf["language"]
-    speech_config.speech_synthesis_voice_name = conf["voice"]
-    speech_config.speech_synthesis_voice_rate = "50"  # 默认速度为1.0
 
     audio_config = speechsdk.audio.AudioOutputConfig(filename=audio_path)
     speech_synthesizer = speechsdk.SpeechSynthesizer(
         speech_config=speech_config, audio_config=audio_config)
-    # result = speech_synthesizer.speak_text_async(text).get()
 
     # 使用SSML设置语音速度
     ssml_text = f"""

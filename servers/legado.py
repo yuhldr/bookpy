@@ -23,7 +23,7 @@ def bu(book_data: dict):
     Returns:
         _type_: _description_
     """
-    return f"url={data2url(book_data["bookUrl"])}"
+    return f'url={data2url(book_data["bookUrl"])}'
 
 
 class LegadoServer(Server):

@@ -25,7 +25,7 @@ async def main(chap=50):
 
     txt_last = await lg.initialize()
     # 下载和播放章节
-    mp3_file = f"{get_cache_mp3(f"{time.time()}")}.mp3"
+    mp3_file = f'{get_cache_mp3(f"{time.time()}")}.mp3'
     print(conf)
     await download_mp3(txt_last, mp3_file, conf)
 
@@ -36,7 +36,7 @@ async def main(chap=50):
 
         # 并行播放和下载任务
         task_play = play_mp3(mp3_file, conf)
-        mp3_file = f"{get_cache_mp3(f"{time.time()}")}.mp3"
+        mp3_file = f'{get_cache_mp3(f"{time.time()}")}.mp3'
         task_download = download_mp3(await lg.next(), mp3_file, conf)
 
         await asyncio.gather(task_play, task_download)

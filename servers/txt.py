@@ -2,6 +2,7 @@
 import datetime
 import json
 import os
+import pathlib
 import time
 
 from servers import Server
@@ -9,6 +10,7 @@ from tools import cal_file_md5, split_text
 from tools.cache import get_cache_path
 
 PATH_FILE = "path_file"
+KEY_POS = "pos"
 
 
 class TxtServer(Server):
@@ -37,37 +39,49 @@ class TxtServer(Server):
             return "没有设置待阅读的文件所在路径"
 
         self.path_file = self.conf[PATH_FILE]
-        print(self.path_file)
+        print(f"文件位置：{self.path_file}")
 
-        pos = self.get_book_progress()["pos"]
+        if not os.path.exists(self.path_file):
+            self.txts, self.p2s, self.txt_n = ["请检查设置的文件路径是否正确"], [0], 0
+            return "路径错误，文件不存在"
+
+        file_ = pathlib.Path(self.path_file)
+
+        if file_.suffix != ".txt":
+            self.txts, self.p2s, self.txt_n = ["请检查设置的文件后缀名"], [0], 0
+            return f"此方式只支持txt文件，而不是{file_.suffix}"
+
+        pos = self._get_read_progress()[KEY_POS]
         print(f"上次读取的位置：{pos}")
 
-        with open(self.path_file, "r", encoding="utf-8") as f:
+        with open(self.path_file, "r", encoding="utf-8", errors='ignore') as f:
             self.txts, self.p2s, self.txt_n = split_text(f.read(), pos)
+        print(len(self.txts), len(self.p2s), self.txt_n)
 
-        return "开始"
+        return file_.stem
 
     async def next(self):
         """下一步
 
         Returns:
-            _type_: _description_
+            str: 需要转音频的文本
         """
-
+        print(f"当前位置：{self.txt_n}")
         txt = self.txts[self.txt_n]
-        await self.save_book_progress()
+        self._save_read_progress()
         self.txt_n += 1
         return txt
 
-    async def get_book_progress(self):
+    def _get_read_progress(self):
         """异步保存阅读进度
         """
 
         md5 = cal_file_md5(self.path_file)
         cache_path = f"{get_cache_path()}/{md5}.json"
+        print(f"进度文件：{cache_path}")
         if not os.path.exists(cache_path):
             print(f"进度文件不存在: {cache_path}")
-            return {PATH_FILE: self.path_file, "date": 0, "pos": 0}
+            return {PATH_FILE: self.path_file, "date": 0, KEY_POS: 0}
 
         with open(cache_path, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -76,7 +90,7 @@ class TxtServer(Server):
 
             return data
 
-    async def save_book_progress(self):
+    def _save_read_progress(self):
         """异步保存阅读进度
 
         Args:
@@ -92,10 +106,10 @@ class TxtServer(Server):
         data = {
             PATH_FILE: self.path_file,
             "date": dct,
-            "pos": self.p2s[self.txt_n],
+            KEY_POS: self.p2s[self.txt_n],
         }
 
         md5 = cal_file_md5(self.path_file)
         cache_path = f"{get_cache_path()}/{md5}.json"
         with open(cache_path, "w", encoding="utf-8") as f:
-            json.dump(data, f)
+            json.dump(data, f, indent=4, ensure_ascii=False)

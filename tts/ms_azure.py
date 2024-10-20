@@ -3,41 +3,56 @@
 
 import azure.cognitiveservices.speech as speechsdk
 
+from tts import TTS
 
-async def download_audio(text, audio_path, conf):
-    """_summary_
 
-    Args:
-        text (_type_): _description_
-        audio_path (_type_): _description_
-        conf (_type_): _description_
-
-    Returns:
-        _type_: _description_
+class AzureTTS(TTS):
+    """文本转语音文件
     """
 
-    if len(conf["key"]) == 0:
-        print("请在配置文件中填写Azure的key")
-        return "请在配置文件中填写Azure的key"
+    def __init__(self):
+        """_summary_
 
-    speech_config = speechsdk.SpeechConfig(
-        subscription=conf["key"], region=conf["region"])
+        Args:
+            key (str): 用于配置中区分使用本地什么服务
+        """
+        super().__init__("azure")
 
-    audio_config = speechsdk.audio.AudioOutputConfig(filename=audio_path)
-    speech_synthesizer = speechsdk.SpeechSynthesizer(
-        speech_config=speech_config, audio_config=audio_config)
+    async def download(self, text, file):
+        """_summary_
 
-    # 使用SSML设置语音速度
-    ssml_text = f"""
-    <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"
-           xmlns:mstts="http://www.w3.org/2001/mstts" xml:lang="{conf['language']}">
-        <voice name="{conf['voice']}">
-            <prosody rate="{conf['rate']}">
-                {text}
-            </prosody>
-        </voice>
-    </speak>
-    """
-    result = speech_synthesizer.speak_ssml_async(ssml_text).get()
-    if result.reason != speechsdk.ResultReason.SynthesizingAudioCompleted:
-        print(f"Speech synthesis failed: {result.reason}")
+        Args:
+            text (str): _description_
+            file (str): _description_
+
+        Returns:
+            bool: _description_
+        """
+
+        if len(self.conf["key"]) == 0:
+            print("请在配置文件中填写Azure的key")
+            return "请在配置文件中填写Azure的key"
+
+        speech_config = speechsdk.SpeechConfig(
+            subscription=self.conf["key"], region=self.conf["region"])
+
+        audio_config = speechsdk.audio.AudioOutputConfig(filename=file)
+        speech_synthesizer = speechsdk.SpeechSynthesizer(
+            speech_config=speech_config, audio_config=audio_config)
+
+        # 使用SSML设置语音速度
+        ssml_text = f"""
+        <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"
+            xmlns:mstts="http://www.w3.org/2001/mstts" xml:lang="{self.conf['language']}">
+            <voice name="{self.conf['voice']}">
+                <prosody rate="{self.conf['rate']}">
+                    {text}
+                </prosody>
+            </voice>
+        </speak>
+        """
+        result = speech_synthesizer.speak_ssml_async(ssml_text).get()
+        if result.reason != speechsdk.ResultReason.SynthesizingAudioCompleted:
+            print(f"Speech synthesis failed: {result.reason}")
+
+        return True

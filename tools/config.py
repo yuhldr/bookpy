@@ -80,3 +80,48 @@ def save_config(config):
     """
     with open(PATH_CONFIG, 'w', encoding="utf-8") as file:
         json.dump(config, file, indent=4, ensure_ascii=False)
+
+
+def get_config_server(conf_all):
+    """获取服务配置
+
+    Args:
+        conf_all (dict): 配置数据
+
+    Returns:
+        dict: 服务配置
+    """
+
+    conf_servers = conf_all["server"]
+    conf_server_key = conf_servers["key"]
+    conf_server = conf_servers[conf_server_key]
+
+    return conf_server_key, conf_server
+
+def get_config_tts_play(conf_all):
+    """获取tts配置
+
+    Args:
+        conf_all (dict): 配置数据
+
+    Returns:
+        dict: tts配置
+    """
+
+    return conf_all["tts"]["play"]
+
+
+def get_config_tts_download(conf_all):
+    """获取tts配置
+
+    Args:
+        conf_all (dict): 配置数据
+
+    Returns:
+        dict: tts配置
+    """
+
+    conf_ttss = conf_all["tts"]["download"]
+    conf_tts_key = conf_ttss["key"]
+    conf_tts = conf_ttss[conf_tts_key]
+    return conf_tts_key, conf_tts

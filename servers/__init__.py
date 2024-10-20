@@ -1,23 +1,36 @@
-'''配置'''
-
-from servers.base import Server
-from servers.legado import LegadoServer
+'''获取文本并自动跳转的配置'''
 
 
-def get_server(conf) -> Server:
-    """基础类的扩展
-
-    Args:
-        conf (dict): _description_
-
-    Returns:
-        Server: _description_
+class Server:
+    """获取待阅读文本的基础类
     """
-    conf_servers = conf["server"]
-    conf_server_key = conf_servers["key"]
-    conf_server = conf_servers[conf_server_key]
-    if conf_server_key == "legado":
-        return LegadoServer(conf_server)
 
-    print(f"未知的服务 {conf_server_key}")
-    return None
+    def __init__(self, key: str):
+        """_summary_
+
+        Args:
+            key (str): 用于配置中区分使用本地什么服务
+        """
+
+        self.key = key
+        self.conf = None
+
+    def set_conf(self, conf):
+        """设置配置信息"""
+        self.conf = conf
+
+    async def initialize(self):
+        """异步初始化一些操作
+
+        Returns:
+            str: 比如书名等待阅读的文本
+        """
+        if not self.conf:
+            print("请先设置配置信息")
+        return "initialize"
+
+    async def next(self):
+        """接下来要阅读的文本，并保存本地阅读进度等信息
+        """
+        print("next")
+        return "每次调用请自动刷新文本，并保存阅读信息"

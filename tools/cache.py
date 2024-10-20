@@ -41,29 +41,3 @@ def rm_cache_mp3():
     if os.path.exists(mp3_path):
         shutil.rmtree(mp3_path)
     os.mkdir(mp3_path)
-
-
-def get_play_end(file_name):
-    """_summary_
-
-    Returns:
-        _type_: _description_
-    """
-    config = {}
-    path = f"{get_cache_path()}/{file_name}.json"
-    with open(path, "r", encoding="utf-8") as file:
-        config = json.load(file)
-    return config
-
-
-def save_play_end(data, file_name):
-    """_summary_
-
-    Args:
-        book_data (dict): 书籍信息
-    """
-    with open(f"{get_cache_path()}/{file_name}.json", 'w', encoding="utf-8") as file:
-        json.dump(data,
-                  file,
-                  indent=4,
-                  ensure_ascii=False)

@@ -1,46 +1,44 @@
-"""一些工具"""
+"""文字转语音"""
 import asyncio
 import copy
 import os
 
-from tts.edge import download_audio as edge_download
-from tts.ms_azure import download_audio as azure_download
+from tools.config import get_config_tts_play
 
 
-async def download_mp3(text, file, conf: dict):
-    """下载视频
-
-    Args:
-        text (str): 文字
-        file (str): 下载到哪里
-        cfg (dict): 只要conf["tts"]["download"]的部分
-
-    Returns:
-        _type_: _description_
+class TTS:
+    """获取待阅读文本的基础类
     """
-    if len(text) > 20:
-        print(f"{text[:20]} ...")
-    else:
-        print(text[:20])
 
-    conf_ttss = conf["tts"]["download"]
-    conf_tts_key = conf_ttss["key"]
-    conf_tts = conf_ttss[conf_tts_key]
+    def __init__(self, key: str):
+        """_summary_
 
-    if conf_tts_key == "azure":
-        await azure_download(text, file, conf_tts)
-    else:
-        await edge_download(text, file, conf_tts)
+        Args:
+            key (str): 用于配置中区分使用本地什么服务
+        """
+
+        self.key = key
+        self.conf = None
+
+    def set_conf(self, conf):
+        """设置配置信息"""
+        self.conf = conf
+
+    async def download(self, text, file):
+        """下载
+        """
+        print(text, file)
 
 
-async def play_mp3(file_path, conf: dict):
+async def play_mp3(file_path, conf_all: dict):
     """子线程阅读
 
     Args:
-        file_path (_type_): 音频文件路径
+        file_path (str): 音频文件路径
+        conf_all (dict): 所有配置
     """
 
-    codes = copy.copy(conf["tts"]["play"]["code"])
+    codes = copy.copy(get_config_tts_play(conf_all)["code"])
     codes.append(file_path)
 
     process = await asyncio.create_subprocess_exec(*codes)

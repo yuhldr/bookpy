@@ -5,7 +5,7 @@ import time
 
 import aiohttp
 
-from servers.base import Server
+from servers import Server
 from tools import data2url, split_text
 
 # 常量定义
@@ -29,32 +29,42 @@ def bu(book_data: dict):
 class LegadoServer(Server):
     """阅读app相关的webapi"""
 
-    def __init__(self, conf: dict):
+    def __init__(self):
         """初始化应用API
 
         Args:
             conf (dict): 配置 conf["legado"]
         """
-        self.base_url = f'http://{conf["ip"]}:{conf["port"]}'
+        # 网址以及端口号
+        self.base_url = ""
+        # 书籍信息
         self.book_data = None
-        self.cl = None
+        # 章节名字
+        self.cls = None
 
-        self.txt_n = 0
+        # 章节序号，按照self.cls计算的
         self.chap_n = 0
+
+        # 要阅读的，并且分割好的文本list
         self.txts = []
+        # 当前读到txts的第几个了
+        self.txt_n = 0
+        # 每个 txt_n 对应的在原文中的位置
         self.p2s = []
         super().__init__("legado")
 
     async def initialize(self):
         """异步初始化"""
+        self.base_url = f'http://{self.conf["ip"]}:{self.conf["port"]}'
+
         self.book_data = await self.get_book_shelf(0)
 
-        self.cl = await self.get_chapter_list(self.book_data)
-        self.cl = self.cl[self.book_data[CHAP_INDEX]:]
+        self.cls = await self.get_chapter_list(self.book_data)
+        self.cls = self.cls[self.book_data[CHAP_INDEX]:]
 
         # 只取之后的章节名字，最多100章
-        if len(self.cl) > 100:
-            self.cl = self.cl[:100]
+        if len(self.cls) > 100:
+            self.cls = self.cls[:100]
 
         return self.book_data["name"]
 
@@ -72,13 +82,13 @@ class LegadoServer(Server):
                 self.chap_n += 1
                 self.book_data[CHAP_POS] = 0
                 self.book_data[CHAP_INDEX] += 1
-                self.book_data[CHAP_TITLE] = self.cl[self.chap_n]
+                self.book_data[CHAP_TITLE] = self.cls[self.chap_n]
 
             book_txt = await self.get_book_txt(self.book_data)
             self.txts, self.p2s, self.txt_n = split_text(
                 book_txt, self.book_data[CHAP_POS])
 
-            return self.cl[self.chap_n]
+            return self.cls[self.chap_n]
 
         txt = self.txts[self.txt_n]
         self.book_data[CHAP_POS] = self.p2s[self.txt_n]

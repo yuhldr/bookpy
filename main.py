@@ -1,11 +1,13 @@
 """主文件"""
 import asyncio
 import time
+from datetime import datetime
 
 from servers import Server
 from tools.cache import get_cache_mp3, rm_cache_mp3
 from tools.config import get_config, get_config_server, get_config_tts_download
 from tools.constant import get_servers, get_ttses
+from tools.read import save_read_time
 from tts import TTS, play_mp3
 
 
@@ -27,6 +29,7 @@ def get_server(conf_all) -> Server:
 
     print(f"未知的服务 {key}")
     return None
+
 
 def get_tts(conf_all) -> TTS:
     """获取tts服务
@@ -76,10 +79,16 @@ async def main(chap=1000, play_min=100):
     # https://github.com/gedoor/legado
     # 获取当前第一本书的信息
     st = time.time()
+    st2 = time.time()
+
+    # 本次阅读开始时间
+    date_key = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # 每次阅读多久
+    date_values = []
+
     rm_cache_mp3()
 
     conf = get_config()
-
     tts = get_tts(conf)
     lg = get_server(conf)
 
@@ -90,9 +99,14 @@ async def main(chap=1000, play_min=100):
     # 默认听100章节，自动停止
     for _i in range(chap):
         # 默认播放100分钟，一段结束再停止
-        if time.time() - st > play_min * 60:
-            print(f"阅读时间{(time.time() - st)/60}分钟 > {play_min}分钟")
+        play_span = time.time() - st
+        if play_span > play_min * 60:
+            print(f"阅读时间{(play_span)/60}分钟 > {play_min}分钟")
             break
+
+        date_values.append(round(time.time() - st2, 2))
+        save_read_time(date_key, date_values, lg.book_name)
+        st2 = time.time()
 
         # 并行播放和下载任务
         task_play = play_mp3(mp3_file, conf)

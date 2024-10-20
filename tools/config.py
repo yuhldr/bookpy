@@ -2,10 +2,12 @@
 import json
 import os
 
-PATH_CONFIG = f'{os.getenv("HOME")}/.config/bpy/'
-if not os.path.exists(PATH_CONFIG):
-    os.mkdir(PATH_CONFIG)
-PATH_CONFIG = f'{PATH_CONFIG}/config.json'
+from tools import get_data, save_data
+
+PATH_CONFIG_DIR = f'{os.getenv("HOME")}/.config/bpy/'
+if not os.path.exists(PATH_CONFIG_DIR):
+    os.mkdir(PATH_CONFIG_DIR)
+PATH_CONFIG = f'{PATH_CONFIG_DIR}/config.json'
 
 CONFIG_DATA = None
 
@@ -62,27 +64,15 @@ def get_config(path=PATH_CONFIG):
 
     if not os.path.exists(path):
         print("配置文件不存在，已创建默认配置文件")
-        save_config(DEFAULT_CONFIG)
+        save_data(PATH_CONFIG, DEFAULT_CONFIG)
         return DEFAULT_CONFIG
 
-    with open(path, "r", encoding="utf-8") as file:
-        print(f"读取配置文件: {path}")
-        data = json.load(file)
-        if "version" not in data or data["version"] != DEFAULT_CONFIG["version"]:
-            save_config(DEFAULT_CONFIG)
-            data = DEFAULT_CONFIG
-        print(data["server"]["legado"]["ip"])
-        return data
+    data = get_data(path)
+    if "version" not in data or data["version"] != DEFAULT_CONFIG["version"]:
+        save_data(PATH_CONFIG, DEFAULT_CONFIG)
+        return DEFAULT_CONFIG
 
-
-def save_config(config):
-    """_summary_
-
-    Args:
-        config (dict): 配置数据
-    """
-    with open(PATH_CONFIG, 'w', encoding="utf-8") as file:
-        json.dump(config, file, indent=4, ensure_ascii=False)
+    return data
 
 
 def get_config_server(conf_all):

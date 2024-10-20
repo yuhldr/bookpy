@@ -14,6 +14,17 @@ CHAP_INDEX = "durChapterIndex"
 CHAP_TITLE = "durChapterTitle"
 
 
+def get_base_url(conf):
+    """_summary_
+
+    Args:
+        conf (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    return f'http://{conf["ip"]}:{conf["port"]}'
+
 def bu(book_data: dict):
     """_summary_
 
@@ -35,8 +46,6 @@ class LegadoServer(Server):
         Args:
             conf (dict): 配置 conf["legado"]
         """
-        # 网址以及端口号
-        self.base_url = ""
         # 书籍信息
         self.book_data = None
         # 章节名字
@@ -55,18 +64,18 @@ class LegadoServer(Server):
 
     async def initialize(self):
         """异步初始化"""
-        self.base_url = f'http://{self.conf["ip"]}:{self.conf["port"]}'
 
         self.book_data = await self.get_book_shelf(0)
 
         self.cls = await self.get_chapter_list(self.book_data)
         self.cls = self.cls[self.book_data[CHAP_INDEX]:]
+        self.book_name = self.book_data["name"]
 
         # 只取之后的章节名字，最多100章
         if len(self.cls) > 100:
             self.cls = self.cls[:100]
 
-        return self.book_data["name"]
+        return self.book_name
 
     async def next(self):
         """下一步
@@ -105,7 +114,7 @@ class LegadoServer(Server):
         Returns:
             dict: 书籍信息
         """
-        url = f"{self.base_url}/getBookshelf"
+        url = f"{get_base_url(self.conf)}/getBookshelf"
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url, timeout=10) as response:
@@ -122,7 +131,7 @@ class LegadoServer(Server):
         Returns:
             list: 章节目录，包含title等
         """
-        url = f"{self.base_url}/getChapterList?{bu(book_data)}"
+        url = f"{get_base_url(self.conf)}/getChapterList?{bu(book_data)}"
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url, timeout=10) as response:
@@ -139,7 +148,7 @@ class LegadoServer(Server):
         Returns:
             str: 某一章节的文字
         """
-        url = f"{self.base_url}/getBookContent"
+        url = f"{get_base_url(self.conf)}/getBookContent"
         params = f"{bu(book_data)}&index={book_data[CHAP_INDEX]}"
 
         async with aiohttp.ClientSession() as session:
@@ -174,7 +183,7 @@ class LegadoServer(Server):
         headers = {'Content-Type': 'application/json'}
 
         async with aiohttp.ClientSession() as session:
-            async with session.post(f"{self.base_url}/saveBookProgress",
+            async with session.post(f"{get_base_url(self.conf)}/saveBookProgress",
                                     data=json_data,
                                     headers=headers,
                                     timeout=10) as response:

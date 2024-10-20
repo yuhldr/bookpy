@@ -13,6 +13,8 @@ class Server:
         """
 
         self.key = key
+        # 书名
+        self.book_name = ""
         self.conf = None
 
     def set_conf(self, conf):

@@ -1,5 +1,8 @@
 """一些工具"""
 import hashlib
+import json
+import os
+import time
 import urllib
 
 
@@ -64,6 +67,7 @@ def cal_file_md5(file_path, chunk_size=8192):
     Returns:
         str: _description_
     """
+    st = time.time()
     # 创建一个MD5哈希对象
     md5_hash = hashlib.md5()
 
@@ -73,4 +77,32 @@ def cal_file_md5(file_path, chunk_size=8192):
             md5_hash.update(chunk)
 
     # 获取MD5哈希值（以十六进制表示）
+    print(f"计算文件md5耗时：{time.time() - st}")
     return md5_hash.hexdigest()
+
+
+def save_data(file_path, data):
+    """保存数据到文件
+
+    Args:
+        file_path (str): 文件路径
+        data (_type_): 数据
+    """
+
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+
+def get_data(file_path, data_defaul=None):
+    """保存数据到文件
+
+    Args:
+        file_path (str): 文件路径
+        data (_type_): 数据
+    """
+
+    if not os.path.exists(file_path) and data_defaul is not None:
+        return data_defaul
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        return json.load(f)

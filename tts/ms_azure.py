@@ -54,5 +54,6 @@ class AzureTTS(TTS):
         result = speech_synthesizer.speak_ssml_async(ssml_text).get()
         if result.reason != speechsdk.ResultReason.SynthesizingAudioCompleted:
             print(f"Speech synthesis failed: {result.reason}")
+            raise ValueError(f"Speech synthesis failed: {result.reason}")
 
         return True

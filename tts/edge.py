@@ -27,4 +27,4 @@ class EdgeTTS(TTS):
         """
         communicate = edge_tts.Communicate(
             text, self.conf["voice"], rate=self.conf["rate"])
-        communicate.save(file)
+        await communicate.save(file)

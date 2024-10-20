@@ -96,11 +96,6 @@ class LegadoServer(Server):
         self.txt_n += 1
         return txt
 
-    async def back(self):
-        """返回
-        """
-        print("返回")
-
     async def get_book_shelf(self, book_n: int):
         """异步获取书架信息
 

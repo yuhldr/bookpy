@@ -1,6 +1,7 @@
 '常量'
 from servers import Server
 from servers.legado import LegadoServer
+from servers.txt import TxtServer
 from tts import TTS
 from tts.edge import EdgeTTS
 from tts.ms_azure import AzureTTS
@@ -15,6 +16,7 @@ def get_servers() -> list[Server]:
 
     return [
         LegadoServer(),
+        TxtServer(),
     ]
 
 

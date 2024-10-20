@@ -17,6 +17,9 @@ DEFAULT_CONFIG = {
         "legado": {
             "ip": "192.168.1.6",
             "port": "1122"
+        },
+        "txt": {
+            "path_file": "/tmp/test.txt"
         }
     },
     "tts": {
@@ -97,6 +100,7 @@ def get_config_server(conf_all):
     conf_server = conf_servers[conf_server_key]
 
     return conf_server_key, conf_server
+
 
 def get_config_tts_play(conf_all):
     """获取tts配置

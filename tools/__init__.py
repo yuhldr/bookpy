@@ -1,4 +1,5 @@
 """一些工具"""
+import hashlib
 import urllib
 
 
@@ -51,3 +52,25 @@ def data2url(url):
         str: 编码以后的图书信息url
     """
     return urllib.parse.quote(url)
+
+
+def cal_file_md5(file_path, chunk_size=8192):
+    """计算文件md5
+
+    Args:
+        file_path (str): _description_
+        chunk_size (int, optional): _description_. Defaults to 8192.
+
+    Returns:
+        str: _description_
+    """
+    # 创建一个MD5哈希对象
+    md5_hash = hashlib.md5()
+
+    # 按块读取文件并更新MD5对象
+    with open(file_path, 'rb') as file:
+        while chunk := file.read(chunk_size):
+            md5_hash.update(chunk)
+
+    # 获取MD5哈希值（以十六进制表示）
+    return md5_hash.hexdigest()

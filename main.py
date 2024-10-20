@@ -85,6 +85,7 @@ async def main(chap=1000, play_min=100):
     date_key = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     # 每次阅读多久
     date_values = []
+    date_words = []
 
     rm_cache_mp3()
 
@@ -93,8 +94,9 @@ async def main(chap=1000, play_min=100):
     lg = get_server(conf)
 
     # 下载和播放章节
+    text = await lg.initialize()
     mp3_file = f'{get_cache_mp3(f"{time.time()}")}.mp3'
-    await tts.download(await lg.initialize(), mp3_file)
+    await tts.download(text, mp3_file)
 
     # 默认听100章节，自动停止
     for _i in range(chap):
@@ -105,7 +107,12 @@ async def main(chap=1000, play_min=100):
             break
 
         date_values.append(round(time.time() - st2, 2))
-        save_read_time(date_key, date_values, lg.book_name)
+        date_words.append(len(text))
+        read_time_data = {
+            "word": date_words,
+            "time": date_values
+        }
+        save_read_time(date_key, read_time_data, lg.book_name)
         st2 = time.time()
 
         # 并行播放和下载任务

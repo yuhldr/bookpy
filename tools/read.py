@@ -35,6 +35,30 @@ def save_read_time(date_k, read_time_data, book_name):
     save_data(PATH_READ_TIME, data)
 
 
+def format_time(seconds):
+    """计算天、小时、分钟和秒
+
+    Args:
+        seconds (float): _description_
+
+    Returns:
+        str: _description_
+    """
+    days, seconds = divmod(seconds, 86400)  # 86400秒 = 1天
+    hours, seconds = divmod(seconds, 3600)  # 3600秒 = 1小时
+    minutes, seconds = divmod(seconds, 60)  # 60秒 = 1分钟
+
+    # 根据时间长度选择合适的显示格式
+    if days > 0:
+        return f"{days}天 {hours}小时 {minutes}分钟 {seconds:.2f}秒"
+    if hours > 0:
+        return f"{hours}小时 {minutes}分钟 {seconds:.2f}秒"
+    if minutes > 0:
+        return f"{minutes}分钟 {seconds:.2f}秒"
+
+    return f"{seconds:.2f}秒"
+
+
 def count_read_time():
     """显示详细信息
     """
@@ -65,9 +89,9 @@ def count_read_time():
 
     for book_name, data in book_names.items():
         s = f"\n***** {book_name} *****\n"
-        s += f"总阅读时间：{data['read_time']:.5}秒"
+        s += f"总阅读时间：{format_time(data['read_time'])}"
         s += f"，总阅读字数：{data['read_word']}个"
         for day, d in data["days"].items():
-            s += f"\n{day}，阅读时间：{d["read_time"]:.5}秒"
+            s += f"\n{day}，阅读时间：{format_time(d["read_time"])}"
             s += f"，阅读字数：{d["read_word"]}个"
         print(s)

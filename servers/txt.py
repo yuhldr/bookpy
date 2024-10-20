@@ -72,6 +72,10 @@ class TxtServer(Server):
         print(f"当前位置：{self.txt_n}")
         txt = self.txts[self.txt_n]
         self._save_read_progress()
+
+        if self.txt_n >= len(self.txts):
+            return "已经读完了"
+
         self.txt_n += 1
         return txt
 

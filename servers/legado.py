@@ -21,7 +21,7 @@ def get_base_url(conf):
         conf (_type_): _description_
 
     Returns:
-        _type_: _description_
+        str: _description_
     """
     return f'http://{conf["ip"]}:{conf["port"]}'
 
@@ -32,7 +32,7 @@ def bu(book_data: dict):
         book_data (dict): _description_
 
     Returns:
-        _type_: _description_
+        str: _description_
     """
     return f'url={data2url(book_data["bookUrl"])}'
 

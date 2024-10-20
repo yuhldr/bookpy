@@ -1,5 +1,4 @@
 """配置"""
-import json
 import os
 
 from tools import get_data, save_data

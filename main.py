@@ -79,13 +79,14 @@ async def main(chap=1000, play_min=100):
     # https://github.com/gedoor/legado
     # 获取当前第一本书的信息
     st = time.time()
-    st2 = time.time()
 
     # 本次阅读开始时间
     date_key = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     # 每次阅读多久
-    date_values = []
-    date_words = []
+    read_time_data = {
+        "word": [],
+        "time": []
+    }
 
     rm_cache_mp3()
 
@@ -101,19 +102,14 @@ async def main(chap=1000, play_min=100):
     # 默认听100章节，自动停止
     for _i in range(chap):
         # 默认播放100分钟，一段结束再停止
-        play_span = time.time() - st
-        if play_span > play_min * 60:
-            print(f"阅读时间{(play_span)/60}分钟 > {play_min}分钟")
+        if sum(read_time_data["time"]) > play_min * 60:
+            print(f"阅读{(sum(read_time_data["time"]))/60} > {play_min}分钟")
             break
 
-        date_values.append(round(time.time() - st2, 2))
-        date_words.append(len(text))
-        read_time_data = {
-            "word": date_words,
-            "time": date_values
-        }
+        read_time_data["time"].append(round(time.time() - st, 2))
+        read_time_data["word"].append(len(text))
         save_read_time(date_key, read_time_data, lg.book_name)
-        st2 = time.time()
+        st = time.time()
 
         # 并行播放和下载任务
         task_play = play_mp3(mp3_file, conf)

@@ -1,6 +1,5 @@
 '''配置'''
 
-import json
 import os
 import shutil
 
